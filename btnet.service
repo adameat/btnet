@@ -1,0 +1,15 @@
+[Unit]
+Description=Bluetooth Net Service
+[Service]
+User=pi
+WorkingDirectory=/home/pi
+ExecStart=/usr/bin/python -u /home/pi/btnet.py
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=btnet
+SuccessExitStatus=143
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+[Install]
+WantedBy=multi-user.target
