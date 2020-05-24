@@ -28,11 +28,11 @@
             "name": "bt-temp5",
             "address": "DF:0E:CF:A7:90:FD",
             "mode": "READ",
-            "period": 20,
+            "period": 60,
             "errorWait": 10,
             "timeout": 10,
             "warmUp": 3,
-            "sleep": false
+            "sleep": true
         },
         {
             "name": "bt-power1",

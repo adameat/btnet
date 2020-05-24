@@ -6,6 +6,7 @@ import threading
 import time
 import signal
 import json
+import base64
 
 sockets = {}
 
@@ -100,6 +101,7 @@ def deviceLoop(args):
     while True:
         start = time.time()
         try:
+            buffer = ''
             connected = False
             wait = 0
             if carbon is None:
@@ -129,6 +131,9 @@ def deviceLoop(args):
                             data = device.recv(1)
                             if len(data) == 0:
                                 break
+                            if (ord(data[0]) < 32 or ord(data[0]) > 127) and ord(data[0]) != 10:
+                                print('[%s] > %s' % (name, buffer))
+                                break
                             buffer += data
                             if buffer.endswith('\n'):
                                 buffer = buffer.rstrip()
@@ -156,6 +161,10 @@ def deviceLoop(args):
                 data = device.recv(1)
                 if len(data) == 0:
                     break
+                if (ord(data[0]) < 32 or ord(data[0]) > 127) and ord(data[0]) != 10:
+                    print('[%s] > %s' % (name, buffer))
+                    buffer = ''
+                    continue
                 buffer += data
                 if buffer.endswith('\n'):
                     buffer = buffer.rstrip()
@@ -213,6 +222,7 @@ def deviceLoop(args):
         except Exception, e:
             print('[%s] Error' % name)
             print('[%s] %s' % (name, e))
+            print('[%s] Buffer: %s' % (name, base64.b64encode(buffer)))
             if device is not None:
                 device.close()
                 device = None
