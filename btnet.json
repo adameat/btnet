@@ -1,39 +1,10 @@
 {
     "settings": {
-        "carbon": "192.168.222.1:2003",
+        "carbon": "192.168.222.2:2003",
         "mode": "FEED",
         "period": 30
     },
     "devices": [
-        {
-            "name": "bt-temp1",
-            "address": "AB:6C:09:00:00:00",
-            "mode": "READ",
-            "period": 60,
-            "errorWait": 10,
-            "timeout": 10,
-            "sleep": true
-        },
-        {
-            "name": "bt-temp3",
-            "address": "A2:2A:1B:07:10:79",
-            "mode": "READ",
-            "period": 60,
-            "errorWait": 10,
-            "timeout": 10,
-            "warmUp": 3,
-            "sleep": true
-        },
-        {
-            "name": "bt-temp5",
-            "address": "DF:0E:CF:A7:90:FD",
-            "mode": "READ",
-            "period": 60,
-            "errorWait": 10,
-            "timeout": 10,
-            "warmUp": 3,
-            "sleep": true
-        },
         {
             "name": "bt-power1",
             "address": "00:90:78:56:5B:B0",
@@ -44,12 +15,6 @@
         {
             "name": "bt-water1",
             "address": "AB:CA:07:00:00:00",
-            "mode": "FEED",
-            "period": 10
-        },
-        {
-            "name": "bt-water2",
-            "address": "00:BA:55:57:40:A3",
             "mode": "FEED",
             "period": 10
         }
