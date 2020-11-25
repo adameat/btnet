@@ -14,7 +14,7 @@ def crc16(data):
     '''
     CRC-16-ModBus Algorithm
     '''
-    data = bytearray(data)
+    data = bytearray(data.encode())
     poly = 0xA001
     crc = 0xFFFF
     for b in data:
