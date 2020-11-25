@@ -27,9 +27,11 @@ def crc16(data):
 
     return crc & 0xFFFF
 
+
 def signalHandler(sig, frame):
     print('Interrupted')
     sys.exit(0)
+
 
 def controlConnectionLoop(connectionSocket, address):
     try:
@@ -40,7 +42,7 @@ def controlConnectionLoop(connectionSocket, address):
             data = connectionSocket.recv(1)
             if len(data) == 0:
                 break
-            buffer += data
+            buffer += data.decode()
             if buffer.endswith('\n'):
                 buffer = buffer.rstrip()
                 if len(buffer) == 0:
@@ -61,13 +63,14 @@ def controlConnectionLoop(connectionSocket, address):
 
                 buffer = ''
 
-    except Exception, e:
+    except Exception as e:
         print('[CONTROL] %s' % e)
 
     print('[CONTROL] Control connection closed')
 
     connectionSocket.close()
     return
+
 
 def controlListenLoop(controlPort):
     listenSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -81,6 +84,7 @@ def controlListenLoop(controlPort):
 
     listenSocket.close()
     return
+
 
 def deviceLoop(args):
     carbon = None
@@ -110,7 +114,7 @@ def deviceLoop(args):
                 new_carbon = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 new_carbon.connect((addr[0], int(addr[1])))
                 carbon = new_carbon
-                print('[%s] Connected to carbon %s' % (name, address))
+                print('[%s] Connected to carbon' % (name))
             print('[%s] Connecting to device %s' % (name, address))
             new_device = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
             new_device.connect((address, 1))
@@ -131,10 +135,10 @@ def deviceLoop(args):
                             data = device.recv(1)
                             if len(data) == 0:
                                 break
-                            if (ord(data[0]) < 32 or ord(data[0]) > 127) and ord(data[0]) != 10:
+                            if (data[0] < 32 or data[0] > 127) and data[0] != 10:
                                 print('[%s] > %s' % (name, buffer))
                                 break
-                            buffer += data
+                            buffer += data.decode()
                             if buffer.endswith('\n'):
                                 buffer = buffer.rstrip()
                                 print('[%s] > %s' % (name, buffer))
@@ -161,11 +165,11 @@ def deviceLoop(args):
                 data = device.recv(1)
                 if len(data) == 0:
                     break
-                if (ord(data[0]) < 32 or ord(data[0]) > 127) and ord(data[0]) != 10:
+                if (data[0] < 32 or data[0] > 127) and data[0] != 10:
                     print('[%s] > %s' % (name, buffer))
                     buffer = ''
                     continue
-                buffer += data
+                buffer += data.decode()
                 if buffer.endswith('\n'):
                     buffer = buffer.rstrip()
                     if len(buffer) == 0:
@@ -205,8 +209,8 @@ def deviceLoop(args):
                                 print('[%s] Error in stream, crc16 %d != %d' % (name, crc16(data_part), int(last_part, 16)))
                                 break
                         carbon_data = '{0:s}.{1:s} {2:.2f} {3:d}'.format(name, parts[1], float(parts[2]), int(time.time()))
-                        carbon.send('%s\n' % carbon_data)
-                        carbon.send('{0:s}.good 1.0 {1:d}\n'.format(name, int(time.time())))
+                        carbon.send(('%s\n' % carbon_data).encode())
+                        carbon.send(('{0:s}.good 1.0 {1:d}\n'.format(name, int(time.time()))).encode())
                         resetErrors = 0
                         if lastOkTime < int(time.time()) - 60:
                             print('[%s] < OK' % name)
@@ -219,10 +223,9 @@ def deviceLoop(args):
             print('[%s] Disconnected' % name)
             del sockets[name]
 
-        except Exception, e:
+        except Exception as e:
             print('[%s] Error' % name)
             print('[%s] %s' % (name, e))
-            print('[%s] Buffer: %s' % (name, base64.b64encode(buffer)))
             if device is not None:
                 device.close()
                 device = None
@@ -232,7 +235,7 @@ def deviceLoop(args):
                     carbon.send('{0:s}.errors 1.0 {1:d}\n'.format(name, int(time.time())))
                     if connected:
                         carbon.send('{0:s}.resets 1.0 {1:d}\n'.format(name, int(time.time())))
-                except Exception, e:
+                except Exception as e:
                     pass
 
                 carbon.close()
@@ -249,7 +252,7 @@ def deviceLoop(args):
                     try:
                         if carbon is not None:
                             carbon.send('{0:s}.resets 1.0 {1:d}\n'.format(name, int(time.time())))
-                    except Exception, e:
+                    except Exception as e:
                         pass
                     mode = 'RESET'
                     print('[%s] Will reset on reconnect because of errors' % name)
@@ -272,11 +275,13 @@ def deviceLoop(args):
         time.sleep(wait)
     return
 
+
 signal.signal(signal.SIGINT, signalHandler)
 config = json.load(open('btnet.json'))
 thread = threading.Thread(target=controlListenLoop, args=(1846,))
 thread.daemon = True
 thread.start()
+
 
 for device in config['devices']:
     args = {}
@@ -286,5 +291,6 @@ for device in config['devices']:
     thread.daemon = True
     thread.start()
     time.sleep(1)
+
 
 signal.pause()
