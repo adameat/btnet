@@ -1,6 +1,6 @@
 {
     "settings": {
-        "carbon": "192.168.222.1:2003",
+        "carbon": "192.168.222.2:2003",
         "mode": "FEED",
         "period": 30
     },
@@ -19,39 +19,27 @@
             "address": "A2:2A:1B:07:10:79",
             "mode": "READ",
             "period": 60,
-            "errorWait": 10,
+            "errorWait": 1,
             "timeout": 10,
-            "warmUp": 3,
+            "warmUp": 5,
+            "sleep": true
+        },
+        {
+            "name": "bt-temp4",
+            "address": "EB:0D:21:09:51:15",
+            "mode": "READ",
+            "period": 60,
+            "errorWait": 1,
+            "timeout": 10,
+            "warmUp": 5,
             "sleep": true
         },
         {
             "name": "bt-temp5",
             "address": "DF:0E:CF:A7:90:FD",
-            "mode": "READ",
-            "period": 60,
-            "errorWait": 10,
-            "timeout": 10,
-            "warmUp": 3,
-            "sleep": true
-        },
-        {
-            "name": "bt-power1",
-            "address": "00:90:78:56:5B:B0",
             "mode": "FEED",
-            "period": 10,
-            "timeout": 20
-        },
-        {
-            "name": "bt-water1",
-            "address": "AB:CA:07:00:00:00",
-            "mode": "FEED",
-            "period": 10
-        },
-        {
-            "name": "bt-water2",
-            "address": "00:BA:55:57:40:A3",
-            "mode": "FEED",
-            "period": 10
+            "period": 20,
+            "sleep": false
         }
     ]
 }
