@@ -211,6 +211,7 @@ def deviceLoop(args):
                         carbon_data = '{0:s}.{1:s} {2:.2f} {3:d}'.format(name, parts[1], float(parts[2]), int(time.time()))
                         carbon.send(('%s\n' % carbon_data).encode())
                         carbon.send(('{0:s}.good 1.0 {1:d}\n'.format(name, int(time.time()))).encode())
+                        carbon.send(('{0:s}.errors 0.0 {1:d}\n'.format(name, int(time.time()))).encode())
                         resetErrors = 0
                         if lastOkTime < int(time.time()) - 60:
                             print('[%s] < OK' % name)
@@ -231,10 +232,12 @@ def deviceLoop(args):
                 device = None
                 del sockets[name]
             if carbon is not None:
+                print('[%s] Send error to carbon' % name)
                 try:
-                    carbon.send('{0:s}.errors 1.0 {1:d}\n'.format(name, int(time.time())))
+                    carbon.send(('{0:s}.errors 1.0 {1:d}\n'.format(name, int(time.time()))).encode())
+                    carbon.send(('{0:s}.good 0.0 {1:d}\n'.format(name, int(time.time()))).encode())
                     if connected:
-                        carbon.send('{0:s}.resets 1.0 {1:d}\n'.format(name, int(time.time())))
+                        carbon.send(('{0:s}.resets 1.0 {1:d}\n'.format(name, int(time.time()))).encode())
                 except Exception as e:
                     pass
 
@@ -251,7 +254,7 @@ def deviceLoop(args):
                 if resetErrors >= 3:
                     try:
                         if carbon is not None:
-                            carbon.send('{0:s}.resets 1.0 {1:d}\n'.format(name, int(time.time())))
+                            carbon.send(('{0:s}.resets 1.0 {1:d}\n'.format(name, int(time.time()))).encode())
                     except Exception as e:
                         pass
                     mode = 'RESET'
