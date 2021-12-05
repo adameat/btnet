@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import bluetooth
 import socket
 import sys
@@ -95,6 +95,7 @@ def deviceLoop(args):
     period = args.get('period', 30)
     timeout = args.get('timeout', 60)
     sleep = args.get('sleep', None)
+    tone = args.get('tone', None)
     warmUp = args.get('warmUp', 5)
     errorWait = args.get('errorWait', 0)
     resetTime = args.get('resetTime', 604800)
@@ -147,6 +148,11 @@ def deviceLoop(args):
                             break
                     if buffer != 'PONG':
                         raise Exception('Could not communicate to device')
+
+                if tone:
+                    print('[%s] < TONE %s' % (name, tone))
+                    device.send("TONE %s\n" % tone)
+                    time.sleep(0.5)
 
                 print('[%s] < %s' % (name, mode))
                 device.send("%s\n" % mode)
