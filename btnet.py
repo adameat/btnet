@@ -98,7 +98,7 @@ def deviceLoop(args):
     tone = args.get('tone', None)
     warmUp = args.get('warmUp', 5)
     errorWait = args.get('errorWait', 0)
-    resetTime = args.get('resetTime', 604800)
+    resetTime = args.get('resetTime', 86400)
     connected = False
     resetErrors = 0
     lastOkTime = 0
@@ -203,6 +203,7 @@ def deviceLoop(args):
                                     print('[%s] < SLEEP %d' % (name, amount))
                                     device.send("SLEEP %d\n" % (amount))
                             break
+
                     if parts[0] == 'DATA' and parts[3] == 'OK':
                         last_part = parts[len(parts) - 1]
                         data_part = buffer[0:len(buffer) - len(last_part) - 1]
@@ -219,7 +220,19 @@ def deviceLoop(args):
                         carbon.send(('{0:s}.good 1.0 {1:d}\n'.format(name, int(time.time()))).encode())
                         carbon.send(('{0:s}.errors 0.0 {1:d}\n'.format(name, int(time.time()))).encode())
                         resetErrors = 0
-                        if lastOkTime < int(time.time()) - 60:
+                        now = time.time()
+                        if parts[1] == 'time.total' and float(parts[2]) / 1000 > resetTime:
+                            print('[%s] Will reset because time.total > resetTime' % name)
+                            print('[%s] < RESET' % name)
+                            device.send("RESET\n")
+                            break
+                        if mode == 'FEED' and now - epoch > resetTime:
+                            epoch = now
+                            print('[%s] Will reset because of resetTime' % name)
+                            print('[%s] < RESET' % name)
+                            device.send("RESET\n")
+                            break
+                        if lastOkTime < now - 60:
                             print('[%s] < OK' % name)
                             device.send("OK\n")
                             lastOkTime = int(time.time())
@@ -269,7 +282,7 @@ def deviceLoop(args):
             pass
 
         now = time.time()
-        if now - epoch > resetTime:
+        if mode == 'READ' and now - epoch > resetTime:
             epoch = now
             mode = 'RESET'
             print('[%s] Will reset on reconnect because of resetTime' % name)
