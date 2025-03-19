@@ -215,10 +215,10 @@ def deviceLoop(args):
                             if crc16(data_part) != int(last_part, 16):
                                 print('[%s] Error in stream, crc16 %d != %d' % (name, crc16(data_part), int(last_part, 16)))
                                 break
-                        carbon_data = '{0:s}.{1:s} {2:.2f} {3:d}'.format(name, parts[1], float(parts[2]), int(time.time()))
+                        carbon_data = '{0:s}.{1:s} {2:.2f} -1'.format(name, parts[1], float(parts[2]))
                         carbon.send(('%s\n' % carbon_data).encode())
-                        carbon.send(('{0:s}.good 1.0 {1:d}\n'.format(name, int(time.time()))).encode())
-                        carbon.send(('{0:s}.errors 0.0 {1:d}\n'.format(name, int(time.time()))).encode())
+                        carbon.send(('{0:s}.good 1 -1\n'.format(name)).encode())
+                        carbon.send(('{0:s}.errors 0 -1\n'.format(name)).encode())
                         resetErrors = 0
                         now = time.time()
                         if parts[1] == 'time.total' and float(parts[2]) / 1000 > resetTime:
@@ -253,10 +253,10 @@ def deviceLoop(args):
             if carbon is not None:
                 print('[%s] Send error to carbon' % name)
                 try:
-                    carbon.send(('{0:s}.errors 1.0 {1:d}\n'.format(name, int(time.time()))).encode())
-                    carbon.send(('{0:s}.good 0.0 {1:d}\n'.format(name, int(time.time()))).encode())
+                    carbon.send(('{0:s}.errors 1 -1\n'.format(name)).encode())
+                    carbon.send(('{0:s}.good 0 -1\n'.format(name)).encode())
                     if connected:
-                        carbon.send(('{0:s}.resets 1.0 {1:d}\n'.format(name, int(time.time()))).encode())
+                        carbon.send(('{0:s}.resets 1 -1\n'.format(name)).encode())
                 except Exception as e:
                     pass
 
@@ -273,7 +273,7 @@ def deviceLoop(args):
                 if resetErrors >= 3:
                     try:
                         if carbon is not None:
-                            carbon.send(('{0:s}.resets 1.0 {1:d}\n'.format(name, int(time.time()))).encode())
+                            carbon.send(('{0:s}.resets 1 -1\n'.format(name)).encode())
                     except Exception as e:
                         pass
                     mode = 'RESET'
